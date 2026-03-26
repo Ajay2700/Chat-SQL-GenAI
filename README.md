@@ -1,27 +1,58 @@
-# Chat-SQL
+# Chat-SQL 🚀
 
-AI-powered SQL chat app with:
+An AI-powered SQL chat app that turns natural language into SQL, runs it against your database, and returns useful results. 🤖
 
+Tech Stack:
 - `backend/` FastAPI + LangChain
 - `frontend/` React + Vite + Tailwind
 
-## Local Run
+## Local Development 🛠️
 
-### Backend
+### Backend (FastAPI)
 
 ```powershell
 cd backend
-..\.venv\Scripts\python.exe -m pip install -r requirements.txt
-..\.venv\Scripts\python.exe -m uvicorn main:app --reload --port 8000
+python -m pip install -r requirements.txt
+python -m uvicorn main:app --reload --port 8000
 ```
 
-### Frontend
+Backend health:
+`http://localhost:8000/health`
+
+### Frontend (React)
 
 ```powershell
 cd frontend
 npm install
 npm run dev
 ```
+
+Frontend:
+`http://localhost:5173`
+
+## Environment Variables 🔐
+
+Backend examples:
+- `backend/.env.example`
+
+Frontend examples:
+- `frontend/.env.example`
+
+Backend CORS:
+- Set `ALLOWED_ORIGINS` to your frontend origin (exact value, no `/api`, no trailing `/`)
+- Set `ALLOWED_ORIGIN_REGEX=https://.*\.vercel\.app` if you want preview URLs to work too
+
+## Database Connection 🗄️
+
+- SQLite (Vercel friendly): choose `sqlite` in the UI and upload a `.db` file
+- MySQL: choose `mysql` and provide a reachable hostname (on Vercel, `127.0.0.1` will not work)
+
+## API Quick Reference 🔗
+
+- `GET /health`
+- `POST /api/connect-db`
+- `POST /api/chat`
+- `POST /api/chat/stream` (SSE)
 
 ## Deploy to GitHub (Code Hosting)
 
@@ -45,9 +76,9 @@ git push -u origin main
 - Set frontend env var:
   - `VITE_API_BASE_URL=https://<your-backend-vercel-domain>/api`
 
-### Fix "Network Error" after deploy
+### Network error? (See Troubleshooting below)
 
-If the Connect button shows **Network Error** on Vercel, apply these in order:
+If you see **Network Error** on Vercel, use the steps in the **Troubleshooting** section below.
 
 1. Verify backend URL is live:
 
@@ -67,6 +98,33 @@ If the Connect button shows **Network Error** on Vercel, apply these in order:
 
 - `POST https://<your-backend-vercel-domain>/api/connect-db`
 - If this fails, check Backend Project → Deployments → Function Logs.
+
+## Troubleshooting 🧯
+
+### 1) “Cannot reach backend / Network Error”
+
+1. Open backend health:
+   - `https://<your-backend-vercel-domain>/health` (must return JSON)
+2. Frontend must call the backend API:
+   - `VITE_API_BASE_URL=https://<your-backend-vercel-domain>/api`
+3. Backend CORS must allow your frontend origin:
+   - `ALLOWED_ORIGINS=https://<your-frontend-vercel-domain>` (no `/api`, no trailing `/`)
+4. For preview deployments:
+   - `ALLOWED_ORIGIN_REGEX=https://.*\.vercel\.app`
+5. Redeploy frontend + backend
+
+### 2) MySQL connection fails (example: `127.0.0.1:3306`)
+
+On Vercel, `127.0.0.1` points to the Vercel function itself (not your local MySQL server).
+
+Fix:
+- Use your real MySQL hostname from your provider, or
+- Use SQLite uploads on Vercel (recommended).
+
+## Vercel Notes ⚙️
+
+- Backend Python runtime: ensure `backend/.python-version` is set to `3.12` (prevents uv/Python mismatch builds).
+- Backend timeout: this repo uses a higher Vercel function timeout via `backend/vercel.json` (`maxDuration: 60`), to avoid cold-start timeouts.
 
 ## Important Security
 
