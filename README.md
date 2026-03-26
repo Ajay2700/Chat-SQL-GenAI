@@ -1,4 +1,3 @@
-<img width="1566" height="893" alt="1" src="https://github.com/user-attachments/assets/c4d5fb73-03c5-460a-9aaa-3579e0b33a7d" /># Chat-SQL 🚀
 
 An AI-powered SQL chat app that turns natural language into SQL, runs it against your database, and returns useful results. 🤖
 
