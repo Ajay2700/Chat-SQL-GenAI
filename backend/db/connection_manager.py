@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import os
 from pathlib import Path
 from urllib.parse import quote_plus
 from uuid import uuid4
@@ -19,8 +20,19 @@ class SessionConnection:
 class ConnectionManager:
     def __init__(self) -> None:
         self._connections: dict[str, SessionConnection] = {}
-        self._sqlite_dir = Path(__file__).resolve().parents[1] / ".data"
-        self._sqlite_dir.mkdir(parents=True, exist_ok=True)
+        preferred_dir = self._resolve_sqlite_dir()
+        preferred_dir.mkdir(parents=True, exist_ok=True)
+        self._sqlite_dir = preferred_dir
+
+    def _resolve_sqlite_dir(self) -> Path:
+        configured_dir = os.getenv("SQLITE_UPLOAD_DIR", "").strip()
+        if configured_dir:
+            return Path(configured_dir)
+
+        if os.getenv("VERCEL"):
+            return Path("/tmp") / "chat-sql-data"
+
+        return Path(__file__).resolve().parents[1] / ".data"
 
     def create_sqlite_session(self, file_name: str, file_bytes: bytes) -> SessionConnection:
         session_id = str(uuid4())
