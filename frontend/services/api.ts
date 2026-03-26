@@ -1,7 +1,40 @@
 import axios from "axios";
 import { ChatResponse, ConnectDbResponse, DbConfig, ModelConfig } from "@/types/chat";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000/api";
+const ENV_API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim();
+const API_BASE_URL = ENV_API_BASE_URL
+  ? ENV_API_BASE_URL.replace(/\/$/, "")
+  : import.meta.env.DEV
+  ? "http://localhost:8000/api"
+  : "";
+
+function ensureApiBaseUrl() {
+  if (!API_BASE_URL) {
+    throw new Error(
+      "VITE_API_BASE_URL is missing in production. Set it to https://<your-backend>.vercel.app/api and redeploy frontend."
+    );
+  }
+}
+
+function resolveAxiosError(error: unknown, fallbackMessage: string): Error {
+  if (!axios.isAxiosError(error)) {
+    return new Error(fallbackMessage);
+  }
+
+  const detail = error.response?.data?.detail;
+  if (detail) {
+    return new Error(detail);
+  }
+
+  if (!error.response) {
+    const target = API_BASE_URL || "<missing VITE_API_BASE_URL>";
+    return new Error(
+      `Cannot reach backend at ${target}. Check frontend VITE_API_BASE_URL and backend ALLOWED_ORIGINS/ALLOWED_ORIGIN_REGEX.`
+    );
+  }
+
+  return new Error(error.message || fallbackMessage);
+}
 
 const http = axios.create({
   baseURL: API_BASE_URL,
@@ -9,6 +42,8 @@ const http = axios.create({
 });
 
 export async function connectDb(config: DbConfig): Promise<ConnectDbResponse> {
+  ensureApiBaseUrl();
+
   const formData = new FormData();
   formData.append("db_type", config.dbType);
 
@@ -32,11 +67,7 @@ export async function connectDb(config: DbConfig): Promise<ConnectDbResponse> {
     });
     data = response.data;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const detail = error.response?.data?.detail;
-      throw new Error(detail || error.message || "Failed to connect database.");
-    }
-    throw error;
+    throw resolveAxiosError(error, "Failed to connect database.");
   }
 
   if ((data as unknown as { error?: string }).error) {
@@ -53,6 +84,8 @@ export async function chat(
   showTrace: boolean,
   allowWrite: boolean
 ): Promise<ChatResponse> {
+  ensureApiBaseUrl();
+
   try {
     const { data } = await http.post<ChatResponse>("/chat", {
       session_id: sessionId,
@@ -66,11 +99,7 @@ export async function chat(
 
     return data;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const detail = error.response?.data?.detail;
-      throw new Error(detail || error.message || "Chat request failed.");
-    }
-    throw error;
+    throw resolveAxiosError(error, "Chat request failed.");
   }
 }
 
@@ -88,6 +117,8 @@ export async function chatStream(
   allowWrite: boolean,
   handlers: StreamHandlers
 ) {
+  ensureApiBaseUrl();
+
   const response = await fetch(`${API_BASE_URL}/chat/stream`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

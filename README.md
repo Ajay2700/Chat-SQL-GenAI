@@ -45,6 +45,29 @@ git push -u origin main
 - Set frontend env var:
   - `VITE_API_BASE_URL=https://<your-backend-vercel-domain>/api`
 
+### Fix "Network Error" after deploy
+
+If the Connect button shows **Network Error** on Vercel, apply these in order:
+
+1. Verify backend URL is live:
+
+- Open `https://<your-backend-vercel-domain>/health` (must return JSON).
+
+2. Set frontend environment variable in Vercel (Frontend Project → Settings → Environment Variables):
+
+- `VITE_API_BASE_URL=https://<your-backend-vercel-domain>/api`
+
+3. Set backend CORS environment variables in Vercel (Backend Project → Settings → Environment Variables):
+
+- `ALLOWED_ORIGINS=https://<your-frontend-vercel-domain>`
+- Optional for preview URLs: `ALLOWED_ORIGIN_REGEX=https://.*\\.vercel\\.app`
+
+4. Redeploy both projects after env changes.
+5. Test API directly:
+
+- `POST https://<your-backend-vercel-domain>/api/connect-db`
+- If this fails, check Backend Project → Deployments → Function Logs.
+
 ## Important Security
 
 - `.env` is ignored by git (already in `.gitignore`).
