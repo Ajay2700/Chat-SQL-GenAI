@@ -6,7 +6,6 @@ from uuid import uuid4
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
-from langchain_community.utilities import SQLDatabase
 
 
 @dataclass
@@ -35,6 +34,7 @@ class ConnectionManager:
         return Path(__file__).resolve().parents[1] / ".data"
 
     def create_sqlite_session(self, file_name: str, file_bytes: bytes) -> SessionConnection:
+        from langchain_community.utilities import SQLDatabase
         session_id = str(uuid4())
         sqlite_path = self._sqlite_dir / f"{session_id}_{file_name}"
         sqlite_path.write_bytes(file_bytes)
@@ -45,6 +45,7 @@ class ConnectionManager:
         return session
 
     def create_mysql_session(self, host: str, user: str, password: str, database: str, port: int = 3306) -> SessionConnection:
+        from langchain_community.utilities import SQLDatabase
         session_id = str(uuid4())
 
         clean_host = host.strip()

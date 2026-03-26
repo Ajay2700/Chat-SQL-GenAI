@@ -2,7 +2,6 @@ import json
 import re
 from typing import AsyncGenerator
 
-from langchain.chains import create_sql_query_chain
 from langchain_core.prompts import ChatPromptTemplate
 from sqlalchemy import text
 
@@ -80,6 +79,7 @@ class SQLAgentService:
         return optimized_sql, optimized_sql != sql_query
 
     def _generate_sql(self, llm, db, query: str, allow_write: bool) -> tuple[str, str, bool]:
+        from langchain.chains import create_sql_query_chain
         sql_chain = create_sql_query_chain(llm, db)
         raw_sql = sql_chain.invoke({"question": query})
         sql_query = normalize_sql(raw_sql)

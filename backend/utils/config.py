@@ -9,7 +9,10 @@ class Settings:
     allowed_origins: list[str] = [
         origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "http://localhost:5173").split(",") if origin.strip()
     ]
-    allowed_origin_regex: str | None = os.getenv("ALLOWED_ORIGIN_REGEX", "").strip() or None
+    allowed_origin_regex: str | None = (
+        os.getenv("ALLOWED_ORIGIN_REGEX", "").strip()
+        or (r"https://.*\.vercel\.app" if os.getenv("VERCEL") else None)
+    )
 
 
 settings = Settings()

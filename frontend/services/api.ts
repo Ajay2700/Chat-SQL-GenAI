@@ -2,8 +2,13 @@ import axios from "axios";
 import { ChatResponse, ConnectDbResponse, DbConfig, ModelConfig } from "@/types/chat";
 
 const ENV_API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim();
-const API_BASE_URL = ENV_API_BASE_URL
-  ? ENV_API_BASE_URL.replace(/\/$/, "")
+const NORMALIZED_ENV_API_BASE_URL = ENV_API_BASE_URL
+  ? ENV_API_BASE_URL.replace(/\/+$/, "")
+  : "";
+const API_BASE_URL = NORMALIZED_ENV_API_BASE_URL
+  ? NORMALIZED_ENV_API_BASE_URL.endsWith("/api")
+    ? NORMALIZED_ENV_API_BASE_URL
+    : `${NORMALIZED_ENV_API_BASE_URL}/api`
   : import.meta.env.DEV
   ? "http://localhost:8000/api"
   : "";
