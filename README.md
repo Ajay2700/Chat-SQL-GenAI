@@ -1,10 +1,17 @@
-# Chat-SQL 🚀
+<img width="1566" height="893" alt="1" src="https://github.com/user-attachments/assets/c4d5fb73-03c5-460a-9aaa-3579e0b33a7d" /># Chat-SQL 🚀
 
 An AI-powered SQL chat app that turns natural language into SQL, runs it against your database, and returns useful results. 🤖
 
 Tech Stack:
 - `backend/` FastAPI + LangChain
 - `frontend/` React + Vite + Tailwind
+
+
+<img width="1566" height="893" alt="1" src="https://github.com/user-attachments/assets/62802999-8891-4d11-a72f-89504dfbdfd8" />
+
+<img width="1533" height="907" alt="2" src="https://github.com/user-attachments/assets/69d406c3-513f-4cb7-a5d9-6da1d4aba46a" />
+
+
 
 ## Local Development 🛠️
 
